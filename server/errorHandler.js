@@ -1,8 +1,30 @@
-module.exports = (err, req, res, next) => {
+const NotFoundError = require("./errors/NotFoundError");
+const { ValidationError } = require("yup");
+const { UniqueConstraintError } = require("sequelize");
+
+module.exports.errorHandler = async (err, req, res, next) => {
   console.log(err);
-  res.status(500).send({
-    errors: {
-      message: err.message,
-    },
-  });
+  if (err instanceof NotFoundError) {
+    return res.status(404).send({
+      errors: {
+        message: err.message,
+      },
+    });
+  }
+
+  if (err instanceof ValidationError) {
+    return res.status(404).send({
+      errors: {
+        message: err.message,
+      },
+    });
+  }
+
+  if (err instanceof UniqueConstraintError) {
+    return res.status(404).send({
+      errors: {
+        message: "User is already exists",
+      },
+    });
+  }
 };
